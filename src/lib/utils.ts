@@ -7,17 +7,22 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function parseGudangBesarBarcode(raw: string): ParsedBarcodeGB | null {
-  const fields = raw.trim().split(';');
-  if (fields.length < 8) return null;
+  // Normalize: beberapa PDT menghasilkan separator berbeda (;, ；fullwidth, tab)
+  const normalized = raw.trim().replace(/；/g, ';').replace(/\t/g, ';');
+  const fields = normalized.split(';');
+  // Minimal 7 field (WH di field ke-8 bersifat opsional)
+  if (fields.length < 7) return null;
+  const qty = parseFloat(fields[3].trim());
+  if (isNaN(qty)) return null;
   return {
     materialId: fields[0].trim(),
-    batchDoc: fields[1].trim(),
-    unitCtn: fields[2].trim(),
-    qtyPerBox: parseFloat(fields[3].trim()),
-    unitPcs: fields[4].trim(),
-    barcode: fields[5].trim(),
-    description: fields[6].trim(),
-    wh: fields[7].trim(),
+    batchDoc:   fields[1].trim(),
+    unitCtn:    fields[2].trim(),
+    qtyPerBox:  qty,
+    unitPcs:    fields[4].trim(),
+    barcode:    fields[5].trim(),
+    description:fields[6].trim(),
+    wh:         fields[7]?.trim() ?? '',
   };
 }
 
