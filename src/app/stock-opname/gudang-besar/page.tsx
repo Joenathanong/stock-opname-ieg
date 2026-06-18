@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useShift } from '@/contexts/ShiftContext';
 import { useToast } from '@/hooks/useToast';
 import { addToQueue } from '@/lib/offline-queue';
-import { parseGudangBesarBarcode, formatTimestamp, formatDate } from '@/lib/utils';
+import { parseGudangBesarBarcode, debugBarcode, formatTimestamp, formatDate } from '@/lib/utils';
 import { StockEntryGB, ParsedBarcodeGB } from '@/types';
 import { Package, MapPin, RotateCcw, AlertTriangle, RefreshCw, ScanLine, Edit3 } from 'lucide-react';
 
@@ -56,7 +56,12 @@ export default function GudangBesarPage() {
   const handleProductScan = (raw: string) => {
     const parsed = parseGudangBesarBarcode(raw);
     if (!parsed) {
-      showError('Barcode tidak valid', 'Format barcode Gudang Besar tidak dikenali.');
+      const debugInfo = debugBarcode(raw);
+      const fieldCount = raw.split(/[;；\t|,]/).length;
+      showError(
+        'Barcode tidak valid',
+        `Jumlah field: ${fieldCount} (minimal 7). Raw: ${debugInfo.substring(0, 80)}`
+      );
       return;
     }
     setParsedData(parsed);
