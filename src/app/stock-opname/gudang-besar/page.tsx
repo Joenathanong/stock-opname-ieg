@@ -68,6 +68,13 @@ export default function GudangBesarPage() {
     setRawBarcode(raw);
     setQtyCarton(1);
     setOverrideQtyPerBox(null);
+
+    // Validasi isi box dari barcode — jika > 480, langsung popup konfirmasi
+    if (parsed.qtyPerBox > 480) {
+      setTempBoxQty(parsed.qtyPerBox);
+      setEditBoxQty(false);
+      setShowBoxConfirm(true);
+    }
   };
 
   const handleProceedToLocation = () => {
@@ -77,12 +84,6 @@ export default function GudangBesarPage() {
     }
     if (qtyCarton <= 0) {
       showError('Qty karton harus lebih dari 0.');
-      return;
-    }
-    const total = Math.round(qtyCarton * effectiveQtyPerBox);
-    if (total > 480) {
-      setTempBoxQty(effectiveQtyPerBox);
-      setShowBoxConfirm(true);
       return;
     }
     setStep(2);
@@ -473,8 +474,8 @@ export default function GudangBesarPage() {
             <div className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
               <AlertTriangle className="text-yellow-600 flex-shrink-0 mt-0.5" size={18} />
               <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                Total <strong>{qtyPcsTotal.toLocaleString('id-ID')} PCS</strong> ({qtyCarton} CTN × {effectiveQtyPerBox} PCS).
-                Jumlah ini melebihi 480 PCS. Apakah Anda yakin?
+                Isi produk per box terdeteksi <strong>{effectiveQtyPerBox.toLocaleString('id-ID')} {parsedData?.unitPcs}</strong>.
+                Jumlah ini melebihi 480 PCS. Apakah isi box sudah benar?
               </p>
             </div>
 
