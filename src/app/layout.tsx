@@ -6,8 +6,8 @@ import { Providers } from './providers';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Stock Opname - EJI',
-  description: 'Aplikasi Stock Opname Warehouse EJI',
+  title: 'Stock Opname - IEG',
+  description: 'Aplikasi Stock Opname Warehouse IEG',
 };
 
 export default function RootLayout({

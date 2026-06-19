@@ -60,7 +60,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             <span className="text-white text-xs font-bold">SO</span>
           </div>
           <span className="hidden sm:block font-bold text-gray-900 dark:text-white">
-            Stock Opname EJI
+            Stock Opname IEG
           </span>
         </div>
         {shift && (

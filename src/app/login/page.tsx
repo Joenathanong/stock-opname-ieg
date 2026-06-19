@@ -75,7 +75,7 @@ export default function LoginPage() {
               <span className="text-white text-2xl font-bold">SO</span>
             </div>
             <h1 className="text-2xl font-bold text-white">Stock Opname</h1>
-            <p className="text-blue-100 text-sm mt-1">Sistem Manajemen Inventaris EJI</p>
+            <p className="text-blue-100 text-sm mt-1">Sistem Stock Opname IEG</p>
           </div>
 
           {/* Form */}
@@ -152,7 +152,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-6">
-          © 2024 EJI — Stock Opname System v1.0.0
+          © 2026 IEG — Stock Opname System v1.0.0
         </p>
       </div>
     </div>
