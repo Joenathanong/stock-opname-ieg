@@ -17,8 +17,12 @@ export interface SOItem {
   barcodeProduct: string;
   barcodeBPOM: string;
   jumlahOCS: number;
-  hasilSO: number | null; // null = belum dihitung
+  hasilSO: number | null; // null = kosong di sheet; 0 dari SUMIF = belum ditemukan
   selisih: number | null;
+  // belum   = hasilSO null atau 0 (SUMIF, belum ditemukan fisik)
+  // sesuai  = hasilSO > 0 dan selisih = 0
+  // surplus = hasilSO > 0 dan selisih > 0 (fisik lebih dari OCS)
+  // defisit = hasilSO > 0 dan selisih < 0 (fisik kurang dari OCS)
   status: 'belum' | 'sesuai' | 'surplus' | 'defisit';
 }
 
@@ -56,8 +60,10 @@ export async function GET() {
         const hasilSO = parseNullable(row[7]);
         const selisih = parseNullable(row[8]);
 
+        // Kunci: SUMIF mengisi 0 untuk item belum discan → hasilSO = 0 = BELUM ditemukan
+        // Hanya hasilSO > 0 yang dianggap sudah dihitung secara fisik
         let status: SOItem['status'] = 'belum';
-        if (hasilSO !== null) {
+        if (hasilSO !== null && hasilSO > 0) {
           if (selisih === null || selisih === 0) status = 'sesuai';
           else if (selisih > 0) status = 'surplus';
           else status = 'defisit';
@@ -79,7 +85,8 @@ export async function GET() {
       .filter((i) => i.materialOCS || i.materialIEG || i.materialEJI);
 
     const total = items.length;
-    const dihitung = items.filter((i) => i.hasilSO !== null).length;
+    // Dihitung = hasilSO > 0 (benar-benar ditemukan secara fisik)
+    const dihitung = items.filter((i) => (i.hasilSO ?? 0) > 0).length;
     const belum = total - dihitung;
     const sesuai = items.filter((i) => i.status === 'sesuai').length;
     const surplus = items.filter((i) => i.status === 'surplus').length;
@@ -93,21 +100,21 @@ export async function GET() {
       .filter((i) => (i.selisih ?? 0) < 0)
       .reduce((s, i) => s + (i.selisih ?? 0), 0);
 
-    // Top 10 selisih terbesar (absolute)
+    // Top 10 selisih terbesar — hanya item yang sudah dihitung (hasilSO > 0)
     const top10Selisih = [...items]
-      .filter((i) => i.selisih !== null && i.selisih !== 0)
+      .filter((i) => (i.hasilSO ?? 0) > 0 && i.selisih !== null && i.selisih !== 0)
       .sort((a, b) => Math.abs(b.selisih ?? 0) - Math.abs(a.selisih ?? 0))
       .slice(0, 10);
 
-    // Top 10 surplus (fisik > OCS)
+    // Top 10 surplus — fisik > OCS, sudah dihitung
     const top10Surplus = [...items]
-      .filter((i) => (i.selisih ?? 0) > 0)
+      .filter((i) => (i.hasilSO ?? 0) > 0 && (i.selisih ?? 0) > 0)
       .sort((a, b) => (b.selisih ?? 0) - (a.selisih ?? 0))
       .slice(0, 10);
 
-    // Top 10 defisit (fisik < OCS)
+    // Top 10 defisit — fisik < OCS, sudah dihitung
     const top10Defisit = [...items]
-      .filter((i) => (i.selisih ?? 0) < 0)
+      .filter((i) => (i.hasilSO ?? 0) > 0 && (i.selisih ?? 0) < 0)
       .sort((a, b) => (a.selisih ?? 0) - (b.selisih ?? 0))
       .slice(0, 10);
 
